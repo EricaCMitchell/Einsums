@@ -13,9 +13,9 @@
 TEMPLATE_TEST_CASE("gemm", "[linear-algebra]", float, double) {
     using namespace einsums;
 
-    Tensor A = create_tensor<TestType>(true, "A", 3, 3);
-    Tensor B = create_tensor<TestType>(true, "B", 3, 3);
-    Tensor C = create_tensor<TestType>(true, "C", 3, 3);
+    auto A = create_tensor<TestType>(true, "A", 3, 3);
+    auto B = create_tensor<TestType>(true, "B", 3, 3);
+    auto C = create_tensor<TestType>(true, "C", 3, 3);
 
     REQUIRE((A.dim(0) == 3 && A.dim(1) == 3));
     REQUIRE((B.dim(0) == 3 && B.dim(1) == 3));

@@ -18,8 +18,8 @@ TEMPLATE_TEST_CASE("GEMM TensorView", "[tensor]", float, double, std::complex<fl
         for (int j = 0; j < 3; j++, ij++)
             I_original(i, j) = ij;
 
-    Tensor     I_copy = I_original;
-    TensorView I_view{I_copy, Dim{2, 2}, Offset{1, 1}};
+    Tensor<TestType, 2> I_copy = I_original;
+    TensorView          I_view{I_copy, Dim{2, 2}, Offset{1, 1}};
 
     SECTION("Result into 2x2 matrix") {
         auto result = create_tensor<TestType>("result", 2, 2);
@@ -83,7 +83,7 @@ TEST_CASE("GEMMSubset TensorView", "[tensor]") {
         size_t const d1_size = 7, d2_size = 3, d3_size = 3;
         size_t const d1 = 4;
 
-        Tensor original = create_random_tensor("Original", d1_size, d2_size, d3_size);
+        auto original = create_random_tensor("Original", d1_size, d2_size, d3_size);
 
         // Set submatrix to a set of known values
         for (size_t i = 0, ij = 1; i < 3; i++) {
@@ -94,7 +94,7 @@ TEST_CASE("GEMMSubset TensorView", "[tensor]") {
 
         // Obtain a 3x3 view of original[4,:,:]
         TensorView view = original(d1, All, All);
-        Tensor     result{"result", d2_size, d3_size};
+        Tensor<double, 2> result{"result", d2_size, d3_size};
 
         // false, false
         {
@@ -166,7 +166,7 @@ TEST_CASE("GEMMSubset TensorView", "[tensor]") {
         size_t const                e1 = 2;
         std::array<size_t, 6> const untouched_d1{0, 1, 3, 4, 5, 6};
 
-        Tensor original = create_random_tensor("Original", d1_size, d2_size, d3_size);
+        auto original = create_random_tensor("Original", d1_size, d2_size, d3_size);
 
         // Set submatrix to a set of known values
         for (size_t i = 0, ij = 1; i < 3; i++) {
@@ -175,7 +175,7 @@ TEST_CASE("GEMMSubset TensorView", "[tensor]") {
             }
         }
 
-        Tensor copy = original;
+        Tensor<double, 3> copy = original;
 
         // Obtain a 3x3 view of original[4,:,:]
         //   A view does not copy data it is just an offset pointer into the original with necessary striding information.
