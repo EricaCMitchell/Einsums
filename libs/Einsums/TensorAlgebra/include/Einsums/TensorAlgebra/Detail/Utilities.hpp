@@ -778,6 +778,6 @@ struct Reverse<First> {
  * Reverses the elements of a tuple.
  */
 template <typename... Args>
-using ReverseT = Reverse<Args...>::type;
+using ReverseT = typename Reverse<Args...>::type;
 
 } // namespace einsums::tensor_algebra

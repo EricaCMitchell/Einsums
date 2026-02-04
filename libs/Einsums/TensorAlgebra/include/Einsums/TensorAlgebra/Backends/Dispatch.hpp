@@ -61,8 +61,8 @@ void einsum_runtime_check(ValueTypeT<CType> const C_prefactor, std::tuple<CIndic
                           BiggestTypeT<typename AType::ValueType, typename BType::ValueType> const AB_prefactor,
                           std::tuple<AIndices...> const &A_indices, AType const &A, std::tuple<BIndices...> const &B_indices,
                           BType const &B) {
-    using ADataType        = AType::ValueType;
-    using BDataType        = BType::ValueType;
+    using ADataType        = typename AType::ValueType;
+    using BDataType        = typename BType::ValueType;
     using CDataType        = ValueTypeT<CType>;
     constexpr size_t ARank = AType::Rank;
     constexpr size_t BRank = BType::Rank;
@@ -270,8 +270,8 @@ bool einsum_do_outer_product(ValueTypeT<CType> const C_prefactor, std::tuple<CIn
                              BiggestTypeT<typename AType::ValueType, typename BType::ValueType> const AB_prefactor,
                              std::tuple<AIndices...> const & /*As*/, AType const &A, std::tuple<BIndices...> const & /*Bs*/,
                              BType const &B) {
-    using ADataType        = AType::ValueType;
-    using BDataType        = BType::ValueType;
+    using ADataType        = typename AType::ValueType;
+    using BDataType        = typename BType::ValueType;
     using CDataType        = ValueTypeT<CType>;
     constexpr size_t ARank = AType::Rank;
     constexpr size_t BRank = BType::Rank;
@@ -447,8 +447,8 @@ bool einsum_do_matrix_vector(ValueTypeT<CType> const C_prefactor, std::tuple<CIn
                              BiggestTypeT<typename AType::ValueType, typename BType::ValueType> const AB_prefactor,
                              std::tuple<AIndices...> const & /*As*/, AType const &A, std::tuple<BIndices...> const & /*Bs*/,
                              BType const &B) {
-    using ADataType        = AType::ValueType;
-    using BDataType        = BType::ValueType;
+    using ADataType        = typename AType::ValueType;
+    using BDataType        = typename BType::ValueType;
     using CDataType        = ValueTypeT<CType>;
     constexpr size_t ARank = AType::Rank;
     constexpr size_t BRank = BType::Rank;
@@ -618,8 +618,8 @@ bool einsum_do_matrix_product(ValueTypeT<CType> const C_prefactor, std::tuple<CI
                               BiggestTypeT<typename AType::ValueType, typename BType::ValueType> const AB_prefactor,
                               std::tuple<AIndices...> const & /*As*/, AType const &A, std::tuple<BIndices...> const & /*Bs*/,
                               BType const &B) {
-    using ADataType        = AType::ValueType;
-    using BDataType        = BType::ValueType;
+    using ADataType        = typename AType::ValueType;
+    using BDataType        = typename BType::ValueType;
     using CDataType        = ValueTypeT<CType>;
     constexpr size_t ARank = AType::Rank;
     constexpr size_t BRank = BType::Rank;
@@ -865,8 +865,8 @@ auto einsum(ValueTypeT<CType> const C_prefactor, std::tuple<CIndices...> const &
     // profile::Timer const _timer();
     print::Indent const _indent;
 
-    using ADataType        = AType::ValueType;
-    using BDataType        = BType::ValueType;
+    using ADataType        = typename AType::ValueType;
+    using BDataType        = typename BType::ValueType;
     using CDataType        = ValueTypeT<CType>;
     constexpr size_t ARank = AType::Rank;
     constexpr size_t BRank = BType::Rank;
@@ -967,8 +967,8 @@ template <bool ConjA, bool ConjB, TensorConcept AType, TensorConcept BType, type
 void einsum(U const UC_prefactor, std::tuple<CIndices...> const &C_indices, CType *C, U const UAB_prefactor,
             std::tuple<AIndices...> const &A_indices, AType const &A, std::tuple<BIndices...> const &B_indices, BType const &B,
             detail::AlgorithmChoice *algorithm_choice) {
-    using ADataType        = AType::ValueType;
-    using BDataType        = BType::ValueType;
+    using ADataType        = typename AType::ValueType;
+    using BDataType        = typename BType::ValueType;
     using CDataType        = ValueTypeT<CType>;
     constexpr size_t ARank = AType::Rank;
     constexpr size_t BRank = BType::Rank;
