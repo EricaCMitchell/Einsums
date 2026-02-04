@@ -135,7 +135,7 @@ class InsertionOrderedMap {
         if (mit == map_.end())
             return end();
         // locate iterator in order_ (O(n)); for O(1) maintain a pos_ index.
-        auto vit = std::find_if(order_.begin(), order_.end(), [&](map_iterator const &it) { return it == mit; });
+        auto vit = std::find(order_.begin(), order_.end(), mit);
         if (vit == order_.end())
             return end(); // should not happen
         return iterator{vit};
@@ -145,7 +145,7 @@ class InsertionOrderedMap {
         auto mit = map_.find(key);
         if (mit == map_.end())
             return cend();
-        auto vit = std::find_if(order_.begin(), order_.end(), [&](map_iterator const &it) { return it == mit; });
+        auto vit = std::find(order_.begin(), order_.end(), mit);
         if (vit == order_.end())
             return cend();
         return const_iterator{vit};
@@ -155,22 +155,25 @@ class InsertionOrderedMap {
     // insert/emplace preserve first-in insertion order
     std::pair<iterator, bool> insert(value_type const &kv) {
         auto [mit, inserted] = map_.insert(kv);
-        if (inserted)
+        if (inserted) {
             order_.push_back(mit);
-        // find order position (last if inserted)
-        auto vit = inserted ? std::prev(order_.end())
-                            : std::find_if(order_.begin(), order_.end(), [&](map_iterator const &it) { return it == mit; });
-        return {iterator{vit}, inserted};
+            return {iterator{std::prev(order_.end())}, true};
+        } else {
+            auto vit = std::find(order_.begin(), order_.end(), mit);
+            return {iterator{vit}, false};
+        }
     }
 
     template <class... Args>
     std::pair<iterator, bool> emplace(Args &&...args) {
         auto [mit, inserted] = map_.emplace(std::forward<Args>(args)...);
-        if (inserted)
+        if (inserted) {
             order_.push_back(mit);
-        auto vit = inserted ? std::prev(order_.end())
-                            : std::find_if(order_.begin(), order_.end(), [&](map_iterator const &it) { return it == mit; });
-        return {iterator{vit}, inserted};
+            return {iterator{std::prev(order_.end())}, true};
+        } else {
+            auto vit = std::find(order_.begin(), order_.end(), mit);
+            return {iterator{vit}, false};
+        }
     }
 
     // like operator[]: inserts default if missing and returns reference
@@ -189,7 +192,7 @@ class InsertionOrderedMap {
         auto mit = map_.find(key);
         if (mit == map_.end())
             return 0;
-        auto vit = std::find_if(order_.begin(), order_.end(), [&](map_iterator const &it) { return it == mit; });
+        auto vit = std::find(order_.begin(), order_.end(), mit);
         if (vit != order_.end())
             order_.erase(vit);
         map_.erase(mit);
