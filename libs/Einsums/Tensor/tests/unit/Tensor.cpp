@@ -14,8 +14,8 @@
 TEST_CASE("Tensor creation", "[tensor]") {
     using namespace einsums;
 
-    Tensor A(true, "A", 1, 1);
-    Tensor B(true, "B", 1, 1);
+    Tensor<double, 2> A(true, "A", 1, 1);
+    Tensor<double, 2> B(true, "B", 1, 1);
 
     REQUIRE((A.dim(0) == 1 && A.dim(1) == 1));
     REQUIRE((B.dim(0) == 1 && B.dim(1) == 1));
@@ -51,15 +51,16 @@ TEST_CASE("Tensor creation", "[tensor]") {
     CHECK_THAT(B.vector_data(), Catch::Matchers::Equals(std::vector<double>{1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0}));
 
     // Perform basic matrix multiplication
-    einsums::linear_algebra::gemm<false, false>(1.0, A, B, 0.0, &C);
+    linear_algebra::gemm<false, false>(1.0, A, B, 0.0, &C);
 
     CHECK_THAT(C.vector_data(), Catch::Matchers::Equals(std::vector<double>{1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0}));
 }
 
 TEST_CASE("Tensor GEMMs", "[tensor]") {
-    einsums::Tensor A("A", 3, 3);
-    einsums::Tensor B("B", 3, 3);
-    einsums::Tensor C("C", 3, 3);
+    using namespace einsums;
+    Tensor<double, 2> A("A", 3, 3);
+    Tensor<double, 2> B("B", 3, 3);
+    Tensor<double, 2> C("C", 3, 3);
 
     REQUIRE((A.dim(0) == 3 && A.dim(1) == 3));
     REQUIRE((B.dim(0) == 3 && B.dim(1) == 3));
@@ -68,45 +69,46 @@ TEST_CASE("Tensor GEMMs", "[tensor]") {
     A.vector_data() = {1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0};
     B.vector_data() = {11.0, 22.0, 33.0, 44.0, 55.0, 66.0, 77.0, 88.0, 99.0};
 
-    if (einsums::GlobalConfigMap::get_singleton().get_bool("row-major")) {
-        einsums::linear_algebra::gemm<false, false>(1.0, A, B, 0.0, &C);
+    if (GlobalConfigMap::get_singleton().get_bool("row-major")) {
+        linear_algebra::gemm<false, false>(1.0, A, B, 0.0, &C);
         CHECK_THAT(C.vector_data(),
                    Catch::Matchers::Equals(std::vector<double>{330.0, 396.0, 462.0, 726.0, 891.0, 1056.0, 1122.0, 1386.0, 1650.0}));
 
-        einsums::linear_algebra::gemm<true, false>(1.0, A, B, 0.0, &C);
+        linear_algebra::gemm<true, false>(1.0, A, B, 0.0, &C);
         CHECK_THAT(C.vector_data(),
                    Catch::Matchers::Equals(std::vector<double>{726.0, 858.0, 990.0, 858.0, 1023.0, 1188.0, 990.0, 1188.0, 1386.0}));
 
-        einsums::linear_algebra::gemm<false, true>(1.0, A, B, 0.0, &C);
+        linear_algebra::gemm<false, true>(1.0, A, B, 0.0, &C);
         CHECK_THAT(C.vector_data(),
                    Catch::Matchers::Equals(std::vector<double>{154.0, 352.0, 550.0, 352.0, 847.0, 1342.0, 550.0, 1342.0, 2134.0}));
 
-        einsums::linear_algebra::gemm<true, true>(1.0, A, B, 0.0, &C);
+        linear_algebra::gemm<true, true>(1.0, A, B, 0.0, &C);
         CHECK_THAT(C.vector_data(),
                    Catch::Matchers::Equals(std::vector<double>{330.0, 726.0, 1122.0, 396.0, 891.0, 1386.0, 462.0, 1056.0, 1650.0}));
     } else {
-        einsums::linear_algebra::gemm<false, false>(1.0, A, B, 0.0, &C);
+        linear_algebra::gemm<false, false>(1.0, A, B, 0.0, &C);
         CHECK_THAT(C.vector_data(),
                    Catch::Matchers::Equals(std::vector<double>{330.0, 396.0, 462.0, 726.0, 891.0, 1056.0, 1122.0, 1386.0, 1650.0}));
 
-        einsums::linear_algebra::gemm<true, false>(1.0, A, B, 0.0, &C);
+        linear_algebra::gemm<true, false>(1.0, A, B, 0.0, &C);
         CHECK_THAT(C.vector_data(),
                    Catch::Matchers::Equals(std::vector<double>{154.0, 352.0, 550.0, 352.0, 847.0, 1342.0, 550.0, 1342.0, 2134.0}));
 
-        einsums::linear_algebra::gemm<false, true>(1.0, A, B, 0.0, &C);
+        linear_algebra::gemm<false, true>(1.0, A, B, 0.0, &C);
         CHECK_THAT(C.vector_data(),
                    Catch::Matchers::Equals(std::vector<double>{726.0, 858.0, 990.0, 858.0, 1023.0, 1188.0, 990.0, 1188.0, 1386.0}));
 
-        einsums::linear_algebra::gemm<true, true>(1.0, A, B, 0.0, &C);
+        linear_algebra::gemm<true, true>(1.0, A, B, 0.0, &C);
         CHECK_THAT(C.vector_data(),
                    Catch::Matchers::Equals(std::vector<double>{330.0, 726.0, 1122.0, 396.0, 891.0, 1386.0, 462.0, 1056.0, 1650.0}));
     }
 }
 
 TEST_CASE("Tensor GEMVs", "[tensor]") {
-    einsums::Tensor A("A", 3, 3);
-    einsums::Tensor x("x", 3);
-    einsums::Tensor y("y", 3);
+    using namespace einsums;
+    Tensor<double, 2> A("A", 3, 3);
+    Tensor<double, 1> x("x", 3);
+    Tensor<double, 1> y("y", 3);
 
     REQUIRE((A.dim(0) == 3 && A.dim(1) == 3));
     REQUIRE((x.dim(0) == 3));
@@ -131,15 +133,16 @@ TEST_CASE("Tensor GEMVs", "[tensor]") {
 }
 
 TEST_CASE("Tensor SYEVs", "[tensor]") {
-    einsums::Tensor A(true, "A", 3, 3);
-    einsums::Tensor x(true, "x", 3);
+    using namespace einsums;
+    Tensor<double, 2> A(true, "A", 3, 3);
+    Tensor<double, 1> x(true, "x", 3);
 
     REQUIRE((A.dim(0) == 3 && A.dim(1) == 3));
     REQUIRE((x.dim(0) == 3));
 
     A.vector_data() = {1.0, 2.0, 3.0, 2.0, 4.0, 5.0, 3.0, 5.0, 6.0};
 
-    einsums::linear_algebra::syev(&A, &x);
+    linear_algebra::syev(&A, &x);
 
     CHECK_THAT(x(0), Catch::Matchers::WithinRel(-0.515729, 0.00001));
     CHECK_THAT(x(1), Catch::Matchers::WithinRel(+0.170915, 0.00001));
@@ -147,7 +150,8 @@ TEST_CASE("Tensor SYEVs", "[tensor]") {
 }
 
 TEST_CASE("Tensor Invert") {
-    einsums::Tensor A(true, "A", 3, 3);
+    using namespace einsums;
+    Tensor<double, 2> A(true, "A", 3, 3);
     A(0, 0) = 1.0;
     A(0, 1) = 2.0;
     A(0, 2) = 3.0;
@@ -158,7 +162,7 @@ TEST_CASE("Tensor Invert") {
     A(2, 1) = 1.0;
     A(2, 2) = 3.0;
 
-    einsums::linear_algebra::invert(&A);
+    linear_algebra::invert(&A);
 
     CHECK_THAT(A.vector_data(), Catch::Matchers::Approx(std::vector<double>{-5.0 / 12, 0.25, 1.0 / 3.0, 7.0 / 12.0, 0.25, -2.0 / 3.0,
                                                                             1.0 / 12.0, -0.25, 1.0 / 3.0})
@@ -168,12 +172,12 @@ TEST_CASE("Tensor Invert") {
 TEST_CASE("TensorView creation", "[tensor]") {
     using namespace einsums;
     // With the aid of deduction guides we can choose to not specify the rank on the tensor
-    einsums::Tensor     A("A", 3, 3, 3);
-    einsums::TensorView viewA(A, einsums::Dim{3, 9});
+    Tensor<double, 3> A("A", 3, 3, 3);
+    TensorView viewA(A, Dim{3, 9});
 
     // Since we are changing the underlying datatype to float the deduction guides will not work.
-    einsums::Tensor     fA("A", 3, 3, 3);
-    einsums::TensorView fviewA(fA, einsums::Dim{3, 9});
+    Tensor<double, 3> fA("A", 3, 3, 3);
+    TensorView fviewA(fA, Dim{3, 9});
 
     for (int i = 0, ijk = 0; i < 3; i++)
         for (int j = 0; j < 3; j++)
@@ -201,7 +205,7 @@ TEST_CASE("TensorView creation", "[tensor]") {
 
     // Drop down in scope to make sure the view is deleted before the array it is viewing.
     {
-        TensorView<double, 2>       view1{array, Dim<2>{10, 10}}, view2{array, Dim{10, 10}, Stride{10, 1}};
+        TensorView<double, 2> view1{array, Dim<2>{10, 10}}, view2{array, Dim{10, 10}, Stride{10, 1}};
         TensorView<double, 2> const const_view1{(double const *)array, Dim<2>{10, 10}},
             const_view2{(double const *)array, Dim{10, 10}, Stride{10, 1}};
 
@@ -316,10 +320,10 @@ TEST_CASE("TensorView Ranges") {
     using namespace einsums;
 
     SECTION("Subviews") {
-        auto                C = einsums::create_random_tensor("C", 3, 3);
-        einsums::TensorView viewC(C, einsums::Dim{2, 2}, einsums::Offset{1, 1}, einsums::Stride{3, 1});
+        auto C = create_random_tensor("C", 3, 3);
+        TensorView viewC(C, Dim{2, 2}, Offset{1, 1}, Stride{3, 1});
 
-        // einsums::println("C strides: %zu %zu\n", C.strides()[0], C.strides()[1]);
+        // println("C strides: %zu %zu\n", C.strides()[0], C.strides()[1]);
 
         if (C.is_row_major()) {
             REQUIRE(C(1, 1) == viewC(0, 0));
@@ -335,12 +339,12 @@ TEST_CASE("TensorView Ranges") {
     }
 
     SECTION("Subviews 2") {
-        auto C = einsums::create_random_tensor("C", 3, 3);
-        // std::array<einsums::Range, 2> test;
-        einsums::TensorView viewC = C(einsums::Range{1, 3}, einsums::Range{1, 3});
+        auto C = create_random_tensor("C", 3, 3);
+        // std::array<Range, 2> test;
+        TensorView viewC = C(Range{1, 3}, Range{1, 3});
 
-        // einsums::println(C);
-        // einsums::println(viewC);
+        // println(C);
+        // println(viewC);
 
         REQUIRE(C(1, 1) == viewC(0, 0));
         REQUIRE(C(2, 1) == viewC(1, 0));
@@ -372,15 +376,17 @@ TEST_CASE("TensorView Ranges") {
 // }
 
 TEST_CASE("reshape") {
+    using namespace einsums;
+
     SECTION("1") {
-        auto C = einsums::create_incremented_tensor("C", 10, 10, 10);
-        REQUIRE_NOTHROW(einsums::Tensor{std::move(C), "D", 10, -1});
+        auto C = create_incremented_tensor("C", 10, 10, 10);
+        REQUIRE_NOTHROW(Tensor<double, 2>{std::move(C), "D", 10, -1});
         // NOTE: At this point tensor C is no longer valid.
     }
 
     SECTION("2") {
-        auto C = einsums::create_incremented_tensor("C", 10, 10, 10);
-        auto D = einsums::Tensor{std::move(C), "D", 100, 10};
+        auto C = create_incremented_tensor("C", 10, 10, 10);
+        auto D = Tensor<double, 2>{std::move(C), "D", 100, 10};
         // NOTE: At this point tensor C is no longer valid.
 
         // println(C); // <- This will cause a segfault when println tries to print the tensor elements
@@ -388,14 +394,14 @@ TEST_CASE("reshape") {
     }
 
     SECTION("3") {
-        auto C = einsums::create_incremented_tensor("C", 10, 10, 10);
-        REQUIRE_THROWS(einsums::Tensor{std::move(C), "D", -1, -1});
+        auto C = create_incremented_tensor("C", 10, 10, 10);
+        REQUIRE_THROWS(Tensor<double, 2>{std::move(C), "D", -1, -1});
         // NOTE: At this point tensor C is no longer valid.
     }
 
     SECTION("4") {
-        auto C = einsums::create_incremented_tensor("C", 10, 10, 10);
-        REQUIRE_THROWS(einsums::Tensor{std::move(C), "D", 9, 9});
+        auto C = create_incremented_tensor("C", 10, 10, 10);
+        REQUIRE_THROWS(Tensor<double, 2>{std::move(C), "D", 9, 9});
         // NOTE: At this point tensor C is no longer valid.
     }
 }
@@ -428,9 +434,9 @@ template <typename T>
 void test_tensor_from_tensorview() {
     using namespace einsums;
 
-    auto   A  = create_incremented_tensor("A", 10, 10);
-    auto   vA = TensorView(A, Dim{2, 2}, Offset{4, 4});
-    Tensor B  = vA;
+    auto A = create_incremented_tensor("A", 10, 10);
+    auto vA = TensorView(A, Dim{2, 2}, Offset{4, 4});
+    decltype(A) B  = vA;
 
     A.lock();
 
